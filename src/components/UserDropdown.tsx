@@ -35,7 +35,7 @@ export function UserDropdown() {
   for (let i = 0; i < email.length; i++) {
     hash = email.charCodeAt(i) + ((hash << 5) - hash);
   }
-  const colors = ['#6381ff', '#4f6bff', '#00d67a', '#ff9f43', '#a55eea', '#ff5b5b', '#00b894', '#e1b12c'];
+  const colors = ['#30372a', '#557f1d', '#7f8d3c', '#9a7117', '#76584a', '#c44f3e', '#47766a', '#6f745f'];
   const avatarBg = colors[Math.abs(hash) % colors.length];
 
   const handleLogout = async () => {
@@ -62,8 +62,8 @@ export function UserDropdown() {
           outline: 'none',
         }}
         onMouseEnter={e => {
-          e.currentTarget.style.borderColor = 'rgba(99,129,255,0.4)';
-          e.currentTarget.style.boxShadow = '0 0 10px rgba(99,129,255,0.1)';
+          e.currentTarget.style.borderColor = 'var(--border2)';
+          e.currentTarget.style.boxShadow = '0 8px 20px var(--shadow)';
         }}
         onMouseLeave={e => {
           e.currentTarget.style.borderColor = 'var(--border)';
@@ -115,8 +115,8 @@ export function UserDropdown() {
             width: 260,
             background: 'var(--surface)',
             border: '1px solid var(--border)',
-            borderRadius: 14,
-            boxShadow: '0 10px 30px rgba(0,0,0,0.5)',
+            borderRadius: 4,
+            boxShadow: '0 18px 50px var(--shadow)',
             zIndex: 1000,
             padding: '12px 8px 8px 8px',
             display: 'flex',
@@ -156,9 +156,9 @@ export function UserDropdown() {
                   fontSize: 9,
                   fontWeight: 700,
                   padding: '2px 6px',
-                  borderRadius: 6,
-                  background: 'rgba(99,129,255,0.12)',
-                  color: 'var(--accent)',
+                  borderRadius: 2,
+                  background: 'var(--surface2)',
+                  color: 'var(--tp)',
                   textTransform: 'uppercase',
                   letterSpacing: '0.04em'
                 }}
@@ -172,11 +172,11 @@ export function UserDropdown() {
 
           {/* Quick Stats Grid */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6, padding: '0 4px 10px 4px' }}>
-            <div style={{ background: 'var(--surface2)', padding: '6px 8px', borderRadius: 8, textAlign: 'center' }}>
+            <div style={{ background: 'var(--surface2)', padding: '6px 8px', borderRadius: 2, textAlign: 'center' }}>
               <div style={{ fontSize: 9, color: 'var(--tm)' }}>Holdings</div>
               <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--tp)', marginTop: 2 }}>{holdings.length}</div>
             </div>
-            <div style={{ background: 'var(--surface2)', padding: '6px 8px', borderRadius: 8, textAlign: 'center' }}>
+            <div style={{ background: 'var(--surface2)', padding: '6px 8px', borderRadius: 2, textAlign: 'center' }}>
               <div style={{ fontSize: 9, color: 'var(--tm)' }}>Watchlist</div>
               <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--tp)', marginTop: 2 }}>{watchlist.length}</div>
             </div>
@@ -192,7 +192,7 @@ export function UserDropdown() {
                 alignItems: 'center',
                 gap: 8,
                 padding: '8px 10px',
-                borderRadius: 8,
+                borderRadius: 2,
                 color: 'var(--ts)',
                 textDecoration: 'none',
                 fontSize: 12,
@@ -200,7 +200,7 @@ export function UserDropdown() {
                 transition: 'background 0.15s ease',
               }}
               onMouseEnter={e => {
-                e.currentTarget.style.background = 'rgba(99,129,255,0.08)';
+                e.currentTarget.style.background = 'var(--surface2)';
                 e.currentTarget.style.color = 'var(--tp)';
               }}
               onMouseLeave={e => {
@@ -221,7 +221,7 @@ export function UserDropdown() {
                 alignItems: 'center',
                 gap: 8,
                 padding: '8px 10px',
-                borderRadius: 8,
+                borderRadius: 2,
                 color: 'var(--ts)',
                 textDecoration: 'none',
                 fontSize: 12,
@@ -229,7 +229,7 @@ export function UserDropdown() {
                 transition: 'background 0.15s ease',
               }}
               onMouseEnter={e => {
-                e.currentTarget.style.background = 'rgba(99,129,255,0.08)';
+                e.currentTarget.style.background = 'var(--surface2)';
                 e.currentTarget.style.color = 'var(--tp)';
               }}
               onMouseLeave={e => {
@@ -249,7 +249,7 @@ export function UserDropdown() {
                 gap: 8,
                 width: '100%',
                 padding: '8px 10px',
-                borderRadius: 8,
+                borderRadius: 2,
                 background: 'none',
                 border: 'none',
                 cursor: 'pointer',
@@ -260,7 +260,7 @@ export function UserDropdown() {
                 transition: 'background 0.15s ease',
               }}
               onMouseEnter={e => {
-                e.currentTarget.style.background = 'rgba(99,129,255,0.08)';
+                e.currentTarget.style.background = 'var(--surface2)';
                 e.currentTarget.style.color = 'var(--tp)';
               }}
               onMouseLeave={e => {
@@ -293,7 +293,7 @@ export function UserDropdown() {
               gap: 8,
               width: '100%',
               padding: '8px 10px',
-              borderRadius: 8,
+                borderRadius: 2,
               background: 'none',
               border: 'none',
               cursor: 'pointer',

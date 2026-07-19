@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Calendar, Shield, Trash2 } from 'lucide-react';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import Image from 'next/image';
 
 export default function ProfilePage() {
   const { user } = useAuth();
@@ -22,7 +23,7 @@ export default function ProfilePage() {
 
   useEffect(() => {
     if (!user) {
-      router.push('/');
+      router.push('/dashboard');
     }
   }, [user, router]);
 
@@ -52,7 +53,7 @@ export default function ProfilePage() {
   for (let i = 0; i < email.length; i++) {
     hash = email.charCodeAt(i) + ((hash << 5) - hash);
   }
-  const colors = ['#6381ff', '#4f6bff', '#00d67a', '#ff9f43', '#a55eea', '#ff5b5b', '#00b894', '#e1b12c'];
+  const colors = ['#30372a', '#557f1d', '#7f8d3c', '#9a7117', '#76584a', '#c44f3e', '#47766a', '#6f745f'];
   const avatarBg = colors[Math.abs(hash) % colors.length];
 
   const handleSaveCapital = async (e: React.FormEvent) => {
@@ -104,18 +105,22 @@ export default function ProfilePage() {
     : 'Unknown Date';
 
   return (
-    <div style={{ background: 'var(--bg)', minHeight: '100vh', display: 'flex', flexDirection: 'column', transition: 'background-color 0.3s ease' }}>
+    <div className="app-shell profile-shell" style={{ background: 'var(--bg)', minHeight: '100vh', display: 'flex', flexDirection: 'column', transition: 'background-color 0.3s ease' }}>
       
       {/* Ambient background blur blobs */}
-      <div aria-hidden style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none', overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', top: '-10%', left: '-5%', width: '50vw', height: '50vw', borderRadius: '50%', background: 'radial-gradient(circle, rgba(99,129,255,0.06) 0%, transparent 70%)' }} />
-        <div style={{ position: 'absolute', bottom: '-10%', right: '-5%', width: '45vw', height: '45vw', borderRadius: '50%', background: 'radial-gradient(circle, rgba(0,214,122,0.03) 0%, transparent 70%)' }} />
-      </div>
+      <div className="app-grain" aria-hidden="true" />
 
       {/* Header */}
-      <header style={{ position: 'sticky', top: 0, zIndex: 50, background: 'var(--header-bg)', backdropFilter: 'blur(24px)', borderBottom: '1px solid var(--border)', transition: 'background 0.3s' }}>
+      <header className="app-header" style={{ position: 'sticky', top: 0, zIndex: 50, background: 'var(--header-bg)', backdropFilter: 'blur(24px)', borderBottom: '1px solid var(--border)', transition: 'background 0.3s' }}>
         <div style={{ maxWidth: 1000, margin: '0 auto', padding: '0 24px', display: 'flex', alignItems: 'center', gap: 16, height: 64 }}>
-          <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 6, textDecoration: 'none', color: 'var(--ts)', fontSize: 13, fontWeight: 600, transition: 'color 0.2s' }}
+          <Link href="/" className="app-brand profile-brand" aria-label="PSE Portfolio home">
+            <span className="app-logo-wrap">
+              <Image src="/logo.png" alt="" width={48} height={48} priority />
+            </span>
+            <span className="app-brand-name">PSE Portfolio</span>
+          </Link>
+          <span className="profile-header-rule" />
+          <Link href="/dashboard" style={{ display: 'flex', alignItems: 'center', gap: 6, textDecoration: 'none', color: 'var(--ts)', fontSize: 13, fontWeight: 600, transition: 'color 0.2s' }}
             onMouseEnter={e => e.currentTarget.style.color = 'var(--accent)'}
             onMouseLeave={e => e.currentTarget.style.color = 'var(--ts)'}
           >
@@ -131,7 +136,11 @@ export default function ProfilePage() {
       <main style={{ flex: 1, position: 'relative', zIndex: 1, padding: '32px 24px 60px' }}>
         <div style={{ maxWidth: 1000, margin: '0 auto' }}>
           
-          <h1 style={{ fontSize: 24, fontWeight: 800, color: 'var(--tp)', marginBottom: 24 }}>Account Settings</h1>
+          <section className="profile-page-heading">
+            <span>Investor profile</span>
+            <h1>Account &amp; preferences.</h1>
+            <p>Manage your portfolio settings, identity, and stored investment data.</p>
+          </section>
 
           {message && (
             <div 
@@ -185,7 +194,7 @@ export default function ProfilePage() {
                 <div style={{ fontSize: 12, color: 'var(--tm)', wordBreak: 'break-all', marginBottom: 12 }}>{email}</div>
                 
                 <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', justifyContent: 'center' }}>
-                  <span style={{ fontSize: 10, fontWeight: 700, padding: '3px 8px', borderRadius: 8, background: 'rgba(99,129,255,0.12)', color: 'var(--accent)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                  <span className="profile-status" style={{ fontSize: 10, fontWeight: 700, padding: '3px 8px', borderRadius: 8, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                     Active Client
                   </span>
                   <span style={{ fontSize: 10, fontWeight: 700, padding: '3px 8px', borderRadius: 8, background: 'rgba(0,214,122,0.12)', color: 'var(--green)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>

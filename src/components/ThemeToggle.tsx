@@ -30,8 +30,8 @@ export function ThemeToggle() {
           width: 36,
           height: 20,
           borderRadius: 10,
-          background: theme === 'dark' ? 'rgba(99,129,255,0.25)' : 'rgba(245,197,24,0.25)',
-          border: `1px solid ${theme === 'dark' ? 'rgba(99,129,255,0.4)' : 'rgba(245,197,24,0.5)'}`,
+          background: theme === 'dark' ? 'rgba(215,255,100,0.16)' : 'rgba(17,19,15,0.08)',
+          border: `1px solid ${theme === 'dark' ? 'rgba(215,255,100,0.42)' : 'rgba(17,19,15,0.28)'}`,
           position: 'relative',
           transition: 'all 0.3s',
           flexShrink: 0,
@@ -44,13 +44,13 @@ export function ThemeToggle() {
           width: 14,
           height: 14,
           borderRadius: '50%',
-          background: theme === 'dark' ? 'var(--accent)' : 'var(--gold)',
+          background: theme === 'dark' ? '#d7ff64' : '#11130f',
           transition: 'left 0.25s cubic-bezier(0.34,1.56,0.64,1), background 0.3s',
-          boxShadow: `0 1px 4px ${theme === 'dark' ? 'rgba(99,129,255,0.5)' : 'rgba(245,197,24,0.5)'}`,
+          boxShadow: `0 1px 4px ${theme === 'dark' ? 'rgba(215,255,100,0.3)' : 'rgba(17,19,15,0.25)'}`,
         }} />
       </div>
       {theme === 'dark'
-        ? <Moon size={13} style={{ color: 'var(--accent)' }} />
+        ? <Moon size={13} style={{ color: '#d7ff64' }} />
         : <Sun  size={13} style={{ color: 'var(--gold)' }} />
       }
     </button>
