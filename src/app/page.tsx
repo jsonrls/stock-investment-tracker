@@ -12,7 +12,7 @@ import {
 import styles from './landing.module.css';
 
 export const metadata: Metadata = {
-  title: 'PSE Portfolio — Invest with a clearer view',
+  title: 'Trackfolio — Invest with a clearer view',
   description:
     'A focused Philippine Stock Exchange dashboard for tracking holdings, watchlists, market movement, and portfolio performance.',
 };
@@ -44,11 +44,10 @@ export default function LandingPage() {
       <div className={styles.grain} aria-hidden="true" />
 
       <header className={styles.header}>
-        <Link href="/" className={styles.brand} aria-label="PSE Portfolio home">
+        <Link href="/" className={styles.brand} aria-label="Trackfolio home">
           <span className={styles.brandMark}>
             <Image src="/logo.png" alt="" width={44} height={44} priority />
           </span>
-          <span>PSE Portfolio</span>
         </Link>
 
         <nav className={styles.nav} aria-label="Main navigation">
@@ -155,7 +154,7 @@ export default function LandingPage() {
           <span>One workspace</span>
           <h2>Less noise. Better context.</h2>
           <p>
-            Everything you need to monitor a long-term PSE portfolio—nothing
+            Everything you need to monitor a long-term Trackfolio—nothing
             you don’t.
           </p>
         </div>
@@ -185,7 +184,7 @@ export default function LandingPage() {
       </section>
 
       <footer className={styles.footer}>
-        <span>© {new Date().getFullYear()} PSE Portfolio</span>
+        <span>© {new Date().getFullYear()} Trackfolio</span>
         <p>For monitoring and educational use. Not investment advice.</p>
       </footer>
     </main>

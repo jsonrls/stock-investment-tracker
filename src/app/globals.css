@@ -188,26 +188,35 @@ body  {
 }
 .ntab.active { color: var(--tp); border-bottom-color: var(--tp); }
 [data-theme="dark"] .ntab.active { color: var(--accent); border-bottom-color: var(--accent); }
-.ntab:hover:not(.active) { color: var(--ts); }
-
-/* Mobile bottom nav */
+.ntab:hover:not(.active) { color: var(--ts); }/* Mobile bottom nav */
 .bottom-nav {
   display: none;
   position: fixed; bottom: 0; left: 0; right: 0; z-index: 50;
   background: var(--header-bg);
   backdrop-filter: blur(20px);
   border-top: 1px solid var(--border);
-  padding: 8px 0 env(safe-area-inset-bottom, 0px);
+  padding: 8px 12px env(safe-area-inset-bottom, 0px);
+  overflow-x: auto;
+  white-space: nowrap;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  justify-content: flex-start;
+  gap: 4px;
+}
+.bottom-nav::-webkit-scrollbar {
+  display: none;
 }
 .bnav-tab {
-  display: flex; flex-direction: column; align-items: center; gap: 3px;
-  flex: 1; padding: 6px 4px;
+  display: inline-flex; flex-direction: column; align-items: center; gap: 3px;
+  flex: 0 0 76px; padding: 6px 2px;
   background: none; border: none; cursor: pointer;
-  font-size: 10px; font-weight: 600; color: var(--tm);
+  font-size: 9px; font-weight: 600; color: var(--tm);
   transition: color 0.15s;
+  vertical-align: middle;
+  text-align: center;
 }
 .bnav-tab.active { color: var(--accent); }
-
+.bnav-tab svg { width: 16px; height: 16px; }
 /* ═══════════════════════════════════════════
    MOVER TABS
 ═══════════════════════════════════════════ */

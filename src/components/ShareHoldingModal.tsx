@@ -208,7 +208,7 @@ export function ShareHoldingModal({ holding, onClose }: ShareHoldingModalProps) 
       // 6. Watermarks
       ctx.fillStyle = 'rgba(255, 255, 255, 0.35)';
       ctx.font = 'bold 20px system-ui, -apple-system, sans-serif';
-      ctx.fillText('PSE Portfolio Tracker 📈', 80, 566);
+      ctx.fillText('Trackfolio 📈', 80, 566);
 
       const dateStr = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
       ctx.font = '500 16px system-ui, -apple-system, sans-serif';
@@ -248,7 +248,8 @@ export function ShareHoldingModal({ holding, onClose }: ShareHoldingModalProps) 
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    canvas.toBlob(async (blob) => {
+    try {
+      const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/png'));
       if (!blob) return;
       const file = new File([blob], `${holding.symbol}_PNL.png`, { type: 'image/png' });
 
@@ -257,10 +258,12 @@ export function ShareHoldingModal({ holding, onClose }: ShareHoldingModalProps) 
           await navigator.share({
             files: [file],
             title: `${holding.symbol} PNL Card`,
-            text: `Check out my PNL card for ${holding.symbol}! Generated via PSE Portfolio Tracker.`
+            text: `Check out my PNL card for ${holding.symbol}! Generated via Trackfolio.`
           });
-        } catch (err) {
-          console.error(err);
+        } catch (err: any) {
+          if (err?.name !== 'AbortError' && err?.code !== 20 && err?.code !== 4001 && !err?.message?.includes('User rejected')) {
+            console.error(err);
+          }
         }
       } else {
         try {
@@ -272,7 +275,9 @@ export function ShareHoldingModal({ holding, onClose }: ShareHoldingModalProps) 
           handleDownload();
         }
       }
-    }, 'image/png');
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const handleDownload = () => {

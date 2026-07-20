@@ -106,18 +106,18 @@ export default function ProfilePage() {
 
   return (
     <div className="app-shell profile-shell" style={{ background: 'var(--bg)', minHeight: '100vh', display: 'flex', flexDirection: 'column', transition: 'background-color 0.3s ease' }}>
-      
+
       {/* Ambient background blur blobs */}
       <div className="app-grain" aria-hidden="true" />
 
       {/* Header */}
       <header className="app-header" style={{ position: 'sticky', top: 0, zIndex: 50, background: 'var(--header-bg)', backdropFilter: 'blur(24px)', borderBottom: '1px solid var(--border)', transition: 'background 0.3s' }}>
         <div style={{ maxWidth: 1000, margin: '0 auto', padding: '0 24px', display: 'flex', alignItems: 'center', gap: 16, height: 64 }}>
-          <Link href="/" className="app-brand profile-brand" aria-label="PSE Portfolio home">
+          <Link href="/" className="app-brand profile-brand" aria-label="Trackfolio home">
             <span className="app-logo-wrap">
               <Image src="/logo.png" alt="" width={48} height={48} priority />
             </span>
-            <span className="app-brand-name">PSE Portfolio</span>
+            <span className="app-brand-name">Trackfolio</span>
           </Link>
           <span className="profile-header-rule" />
           <Link href="/dashboard" style={{ display: 'flex', alignItems: 'center', gap: 6, textDecoration: 'none', color: 'var(--ts)', fontSize: 13, fontWeight: 600, transition: 'color 0.2s' }}
@@ -135,7 +135,7 @@ export default function ProfilePage() {
       {/* Main Body */}
       <main style={{ flex: 1, position: 'relative', zIndex: 1, padding: '32px 24px 60px' }}>
         <div style={{ maxWidth: 1000, margin: '0 auto' }}>
-          
+
           <section className="profile-page-heading">
             <span>Investor profile</span>
             <h1>Account &amp; preferences.</h1>
@@ -143,7 +143,7 @@ export default function ProfilePage() {
           </section>
 
           {message && (
-            <div 
+            <div
               style={{
                 background: message.type === 'success' ? 'rgba(0,214,122,0.12)' : 'rgba(255,71,87,0.12)',
                 border: `1px solid ${message.type === 'success' ? 'rgba(0,214,122,0.3)' : 'rgba(255,71,87,0.3)'}`,
@@ -165,10 +165,10 @@ export default function ProfilePage() {
 
           {/* Profile Content Grid */}
           <div className="profile-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1.3fr', gap: 24 }}>
-            
+
             {/* Left Column: Account Details & Overview */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-              
+
               {/* Profile Card */}
               <div className="card" style={{ padding: '28px 24px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
                 <div
@@ -189,10 +189,10 @@ export default function ProfilePage() {
                 >
                   {firstLetter}
                 </div>
-                
+
                 <h2 style={{ fontSize: 18, fontWeight: 800, color: 'var(--tp)', margin: '0 0 4px 0' }}>{username}</h2>
                 <div style={{ fontSize: 12, color: 'var(--tm)', wordBreak: 'break-all', marginBottom: 12 }}>{email}</div>
-                
+
                 <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', justifyContent: 'center' }}>
                   <span className="profile-status" style={{ fontSize: 10, fontWeight: 700, padding: '3px 8px', borderRadius: 8, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                     Active Client
@@ -201,9 +201,9 @@ export default function ProfilePage() {
                     Standard Plan
                   </span>
                 </div>
-                
+
                 <div style={{ height: 1, width: '100%', background: 'var(--border)', margin: '20px 0' }} />
-                
+
                 {/* Extra Metadata details */}
                 <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 10, textAlign: 'left' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 12, color: 'var(--ts)' }}>
@@ -242,20 +242,20 @@ export default function ProfilePage() {
 
             {/* Right Column: Preferences, Investment Capital Form, and Danger Zone */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-              
+
               {/* Preferences Configuration */}
               <div className="card" style={{ padding: '24px' }}>
                 <h3 style={{ fontSize: 13, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--tm)', marginBottom: 20 }}>
                   App Preferences
                 </h3>
-                
+
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-                  
+
                   {/* Currency Format */}
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                     <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--ts)' }}>Currency Representation</label>
-                    <select 
-                      value={currency} 
+                    <select
+                      value={currency}
                       onChange={e => setCurrency(e.target.value)}
                       className="field"
                       style={{ width: '100%', padding: 9, background: 'var(--surface2)', color: 'var(--tp)', border: '1px solid var(--border)', borderRadius: 10, outline: 'none' }}
@@ -269,8 +269,8 @@ export default function ProfilePage() {
                   {/* Refresh Rate */}
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                     <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--ts)' }}>Quote Refresh Rate</label>
-                    <select 
-                      value={refreshInterval} 
+                    <select
+                      value={refreshInterval}
                       onChange={e => setRefreshInterval(e.target.value)}
                       className="field"
                       style={{ width: '100%', padding: 9, background: 'var(--surface2)', color: 'var(--tp)', border: '1px solid var(--border)', borderRadius: 10, outline: 'none' }}
@@ -304,10 +304,10 @@ export default function ProfilePage() {
                       placeholder="e.g. 100000"
                     />
                   </div>
-                  <button 
-                    type="submit" 
+                  <button
+                    type="submit"
                     disabled={isUpdating}
-                    className="btn-p" 
+                    className="btn-p"
                     style={{ alignSelf: 'flex-start', padding: '8px 16px', fontSize: 12, height: 'auto', opacity: isUpdating ? 0.7 : 1 }}
                   >
                     {isUpdating ? 'Saving…' : 'Save Investment Capital'}
@@ -323,18 +323,18 @@ export default function ProfilePage() {
                 <p style={{ fontSize: 12, color: 'var(--ts)', lineHeight: 1.5, marginBottom: 16 }}>
                   Resetting your portfolio will permanently erase all custom holdings, synced stock positions, initial investment capital, and your active watchlist. This action is irreversible.
                 </p>
-                
+
                 {showConfirmReset ? (
                   <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                    <button 
+                    <button
                       onClick={handleResetData}
                       disabled={isUpdating}
-                      className="btn-p" 
+                      className="btn-p"
                       style={{ background: 'var(--red)', color: '#fff', border: 'none', padding: '8px 16px', fontSize: 12, height: 'auto' }}
                     >
                       {isUpdating ? 'Resetting…' : 'Yes, Permanently Delete All'}
                     </button>
-                    <button 
+                    <button
                       onClick={() => setShowConfirmReset(false)}
                       disabled={isUpdating}
                       className="btn-s"
@@ -344,7 +344,7 @@ export default function ProfilePage() {
                     </button>
                   </div>
                 ) : (
-                  <button 
+                  <button
                     onClick={() => setShowConfirmReset(true)}
                     style={{
                       display: 'flex',

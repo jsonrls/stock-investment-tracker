@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { usePortfolio, PortfolioHolding } from '@/context/PortfolioContext';
 import { api, Stock } from '@/lib/api';
 import { PriceChange, PriceDisplay } from './ui/PriceDisplay';
@@ -26,9 +26,13 @@ const COLORS: Record<string, string> = {
   Other: '#747d8c'
 };
 
+import { useAuth } from '@/context/AuthContext';
+import { LoginBlock } from './LoginBlock';
+
 export function PortfolioTable({ 
   onSelectStock,
-  onStatsChange 
+  onStatsChange,
+  onSignInClick
 }: { 
   onSelectStock?: (symbol: string, name: string) => void;
   onStatsChange?: (stats: {
@@ -40,8 +44,155 @@ export function PortfolioTable({
     overallGLP: number;
     holdingsCount: number;
   }) => void;
+  onSignInClick?: () => void;
 }) {
+  const { user } = useAuth();
   const { holdings, removeHolding, initialInvestment, updateInitialInvestment } = usePortfolio();
+
+  // Target Allocations State
+  const [allocationTargets, setAllocationTargets] = useState<Record<string, number>>({
+    Stock: 60,
+    REIT: 20,
+    Cash: 20,
+    ETF: 0,
+    Other: 0
+  });
+  const [isEditingTargets, setIsEditingTargets] = useState(false);
+  const [tempTargets, setTempTargets] = useState<Record<string, string>>({
+    Stock: '60',
+    REIT: '20',
+    Cash: '20',
+    ETF: '0',
+    Other: '0'
+  });
+
+  // Load target allocations
+  useEffect(() => {
+    if (!user) return;
+    const storageKey = `pse_allocation_targets_${user.id}`;
+    const saved = localStorage.getItem(storageKey);
+    if (saved) {
+      try {
+        setAllocationTargets(JSON.parse(saved));
+      } catch (e) {
+        console.error('Error loading targets', e);
+      }
+    }
+  }, [user]);
+
+  const handleStartEditTargets = () => {
+    setTempTargets({
+      Stock: allocationTargets.Stock?.toString() || '0',
+      REIT: allocationTargets.REIT?.toString() || '0',
+      Cash: allocationTargets.Cash?.toString() || '0',
+      ETF: allocationTargets.ETF?.toString() || '0',
+      Other: allocationTargets.Other?.toString() || '0'
+    });
+    setIsEditingTargets(true);
+  };
+
+  const handleSaveTargets = (e: React.FormEvent) => {
+    e.preventDefault();
+    const parsed = {
+      Stock: parseFloat(tempTargets.Stock) || 0,
+      REIT: parseFloat(tempTargets.REIT) || 0,
+      Cash: parseFloat(tempTargets.Cash) || 0,
+      ETF: parseFloat(tempTargets.ETF) || 0,
+      Other: parseFloat(tempTargets.Other) || 0
+    };
+
+    const total = parsed.Stock + parsed.REIT + parsed.Cash + parsed.ETF + parsed.Other;
+    if (Math.abs(total - 100) > 0.01) {
+      alert(`Target allocation must sum to 100%. Current sum: ${total}%`);
+      return;
+    }
+
+    setAllocationTargets(parsed);
+    const storageKey = `pse_allocation_targets_${user?.id || 'anon'}`;
+    localStorage.setItem(storageKey, JSON.stringify(parsed));
+    setIsEditingTargets(false);
+  };
+
+  // Backups: Export JSON
+  const handleExportBackup = () => {
+    const backupKeySuffix = user ? user.id : 'anon';
+    const backupData = {
+      initialInvestment,
+      holdings,
+      watchlist: localStorage.getItem('pse_watchlist') ? JSON.parse(localStorage.getItem('pse_watchlist')!) : [],
+      watchlistAlerts: localStorage.getItem(`pse_watchlist_alerts_${backupKeySuffix}`) 
+        ? JSON.parse(localStorage.getItem(`pse_watchlist_alerts_${backupKeySuffix}`)!) : {},
+      dividends: localStorage.getItem(`pse_dividends_${backupKeySuffix}`) 
+        ? JSON.parse(localStorage.getItem(`pse_dividends_${backupKeySuffix}`)!) : [],
+      transactions: localStorage.getItem(`pse_transactions_${backupKeySuffix}`) 
+        ? JSON.parse(localStorage.getItem(`pse_transactions_${backupKeySuffix}`)!) : []
+    };
+
+    const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `pse_portfolio_backup_${new Date().toISOString().split('T')[0]}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  // Backups: Import JSON
+  const handleImportBackup = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async (evt) => {
+      try {
+        const data = JSON.parse(evt.target?.result as string);
+        if (!data || typeof data !== 'object') throw new Error('Invalid format');
+
+        const backupKeySuffix = user ? user.id : 'anon';
+        
+        // Restore values
+        if (data.initialInvestment !== undefined) {
+          localStorage.setItem('pse_initial_investment', String(data.initialInvestment));
+        }
+        if (data.watchlist) {
+          localStorage.setItem('pse_watchlist', JSON.stringify(data.watchlist));
+        }
+        if (data.watchlistAlerts) {
+          localStorage.setItem(`pse_watchlist_alerts_${backupKeySuffix}`, JSON.stringify(data.watchlistAlerts));
+        }
+        if (data.dividends) {
+          localStorage.setItem(`pse_dividends_${backupKeySuffix}`, JSON.stringify(data.dividends));
+        }
+        if (data.transactions) {
+          localStorage.setItem(`pse_transactions_${backupKeySuffix}`, JSON.stringify(data.transactions));
+        }
+
+        alert('Backup data successfully restored! The page will now reload.');
+        window.location.reload();
+      } catch (err) {
+        alert('Failed to import backup. Please ensure the file is a valid PSE Portfolio backup JSON.');
+        console.error(err);
+      }
+    };
+    reader.readAsText(file);
+  };
+
+  if (!user) {
+    return (
+      <LoginBlock 
+        title="Unlock your Portfolio" 
+        description="Sign in to track your investments, calculate average cost, view real-time returns, and analyze your asset allocation."
+        features={[
+          "Track average cost and current value",
+          "Visual asset allocation breakdown",
+          "Overall net profit/loss and return rates"
+        ]}
+        noCard={true}
+        onSignInClick={onSignInClick}
+      />
+    );
+  }
+
   const [enriched, setEnriched]     = useState<Enriched[]>([]);
   const [loading, setLoading]       = useState(true);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
@@ -235,17 +386,55 @@ export function PortfolioTable({
             display: 'flex',
             flexDirection: 'column',
             gap: 14,
-            pointerEvents: 'none'
+            pointerEvents: 'auto'
           }}
         >
-          <h3 style={{ fontSize: 12, fontWeight: 700, color: 'var(--tp)', textTransform: 'uppercase', letterSpacing: '0.07em', margin: 0 }}>
-            Asset Allocation
-          </h3>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <h3 style={{ fontSize: 11, fontWeight: 700, color: 'var(--tp)', textTransform: 'uppercase', letterSpacing: '0.07em', margin: 0 }}>
+              Asset Allocation
+            </h3>
+            <button 
+              onClick={isEditingTargets ? handleSaveTargets : handleStartEditTargets}
+              className="btn-s" 
+              style={{ padding: '2px 8px', fontSize: 9, cursor: 'pointer', borderRadius: 4 }}
+            >
+              {isEditingTargets ? 'Save Targets' : 'Adjust Targets'}
+            </button>
+          </div>
           
           {chartData.length === 0 ? (
             <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 180, color: 'var(--tm)', fontSize: 12 }}>
               Add holdings or fund capital to view allocation
             </div>
+          ) : isEditingTargets ? (
+            <form onSubmit={handleSaveTargets} style={{ display: 'flex', flexDirection: 'column', gap: 10, fontSize: 11 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: 6, alignItems: 'center' }}>
+                <div style={{ fontWeight: 700, color: 'var(--tm)', fontSize: 9, textTransform: 'uppercase' }}>Category</div>
+                <div style={{ fontWeight: 700, color: 'var(--tm)', fontSize: 9, textTransform: 'uppercase', textAlign: 'right' }}>Target %</div>
+
+                {Object.keys(tempTargets).map(cat => (
+                  <React.Fragment key={cat}>
+                    <div style={{ color: 'var(--ts)', fontWeight: 600 }}>{cat}</div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 4, justifyContent: 'flex-end' }}>
+                      <input
+                        type="number"
+                        min="0"
+                        max="100"
+                        value={tempTargets[cat]}
+                        onChange={e => setTempTargets(prev => ({ ...prev, [cat]: e.target.value }))}
+                        className="field"
+                        style={{ width: 60, padding: '4px 6px', fontSize: 11, textAlign: 'right' }}
+                      />
+                      <span style={{ color: 'var(--tm)' }}>%</span>
+                    </div>
+                  </React.Fragment>
+                ))}
+              </div>
+              <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end', marginTop: 6 }}>
+                <button type="submit" className="btn-p" style={{ padding: '4px 10px', fontSize: 10 }}>Save</button>
+                <button type="button" onClick={() => setIsEditingTargets(false)} className="btn-s" style={{ padding: '4px 10px', fontSize: 10 }}>Cancel</button>
+              </div>
+            </form>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               <div style={{ height: 160, width: '100%', position: 'relative' }}>
@@ -273,20 +462,39 @@ export function PortfolioTable({
                 </div>
               </div>
 
-              {/* Custom Legend */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 6, maxHeight: 120, overflowY: 'auto' }}>
+              {/* Custom Legend + Rebalancer */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8, maxHeight: 140, overflowY: 'auto' }}>
                 {chartData.map(d => {
                   const pct = overallPortVal > 0 ? (d.value / overallPortVal) * 100 : 0;
+                  
+                  // Rebalancing logic
+                  const targetPct = allocationTargets[d.name] || 0;
+                  const targetVal = overallPortVal * (targetPct / 100);
+                  const diff = targetVal - d.value;
+                  const absDiff = Math.abs(diff);
+
                   return (
-                    <div key={d.name} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 11 }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                        <div style={{ width: 8, height: 8, borderRadius: '50%', background: COLORS[d.name] }} />
-                        <span style={{ fontWeight: 600, color: 'var(--tp)' }}>{d.name}</span>
+                    <div key={d.name} style={{ display: 'flex', flexDirection: 'column', gap: 2, fontSize: 11, borderBottom: '1px solid rgba(242,239,231,0.04)', paddingBottom: 6 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                          <div style={{ width: 8, height: 8, borderRadius: '50%', background: COLORS[d.name] }} />
+                          <span style={{ fontWeight: 600, color: 'var(--tp)' }}>{d.name}</span>
+                        </div>
+                        <div style={{ color: 'var(--tm)' }}>
+                          <span style={{ color: 'var(--tp)', fontWeight: 700, marginRight: 4 }}>₱{fmt(d.value)}</span>
+                          ({pct.toFixed(1)}% / {targetPct}%)
+                        </div>
                       </div>
-                      <div style={{ color: 'var(--tm)' }}>
-                        <span style={{ color: 'var(--tp)', fontWeight: 700, marginRight: 4 }}>₱{fmt(d.value)}</span>
-                        ({pct.toFixed(1)}%)
-                      </div>
+                      {targetPct > 0 && (
+                        <div style={{ fontSize: 9, textAlign: 'right', fontWeight: 600, color: diff >= 0 ? 'var(--green)' : 'var(--red)' }}>
+                          {diff >= 0.01 
+                            ? `Buy ₱${fmt(absDiff)} to target` 
+                            : diff <= -0.01 
+                              ? `Sell ₱${fmt(absDiff)} to target` 
+                              : 'At target'
+                          }
+                        </div>
+                      )}
                     </div>
                   );
                 })}
@@ -297,14 +505,28 @@ export function PortfolioTable({
         
       </div>
 
-      {/* Refresh row */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      {/* Refresh and Backups Row */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 10 }}>
         <span style={{ fontSize: 11, color: 'var(--tm)' }}>
           {lastUpdated ? `Updated ${lastUpdated.toLocaleTimeString()}` : 'Fetching prices…'}
         </span>
-        <button onClick={fetchPrices} className="btn-s" style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 11, padding: '5px 12px' }}>
-          <RefreshCw size={11} /> Refresh
-        </button>
+        <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+          <label className="btn-s" style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 11, padding: '5px 12px', cursor: 'pointer', borderRadius: 4 }}>
+            <span>📤 Import</span>
+            <input
+              type="file"
+              accept=".json"
+              onChange={handleImportBackup}
+              style={{ display: 'none' }}
+            />
+          </label>
+          <button onClick={handleExportBackup} className="btn-s" style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, padding: '5px 12px', borderRadius: 4 }}>
+            📥 Export
+          </button>
+          <button onClick={fetchPrices} className="btn-s" style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 11, padding: '5px 12px', borderRadius: 4 }}>
+            <RefreshCw size={11} /> Refresh
+          </button>
+        </div>
       </div>
 
       {/* Table */}

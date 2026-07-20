@@ -16,18 +16,28 @@ import { AuthModal } from '@/components/AuthModal';
 import { UserDropdown } from '@/components/UserDropdown';
 import { useAuth } from '@/context/AuthContext';
 import { Stock } from '@/lib/api';
+import { BrokerFeeCalculator } from '@/components/BrokerFeeCalculator';
+import { PCAPlanner } from '@/components/PCAPlanner';
+import { DividendTracker } from '@/components/DividendTracker';
+import { TransactionHistory } from '@/components/TransactionHistory';
+import { StockComparer } from '@/components/StockComparer';
 import {
   LayoutDashboard, BarChart2, Star, TrendingUp,
-  ChevronRight, Search, X, LogIn, Share2,
+  ChevronRight, Search, X, LogIn, Share2, Calculator, Coins, Landmark, ArrowRightLeft, ArrowLeftRight,
 } from 'lucide-react';
 
-type Tab = 'dashboard' | 'market' | 'portfolio' | 'watchlist';
+type Tab = 'dashboard' | 'market' | 'portfolio' | 'watchlist' | 'calculator' | 'pca' | 'dividends' | 'transactions' | 'compare';
 
 const NAV_TABS: { key: Tab; label: string; icon: React.ReactNode }[] = [
   { key: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard size={18} /> },
   { key: 'market',    label: 'Market',    icon: <TrendingUp    size={18} /> },
   { key: 'portfolio', label: 'Portfolio', icon: <BarChart2     size={18} /> },
   { key: 'watchlist', label: 'Watchlist', icon: <Star          size={18} /> },
+  { key: 'calculator', label: 'Fee Calculator', icon: <Calculator size={18} /> },
+  { key: 'pca',        label: 'PCA Planner',    icon: <Coins size={18} /> },
+  { key: 'dividends',  label: 'Dividends',      icon: <Landmark size={18} /> },
+  { key: 'transactions', label: 'Ledger',       icon: <ArrowRightLeft size={18} /> },
+  { key: 'compare',    label: 'Compare',        icon: <ArrowLeftRight size={18} /> },
 ];
 
 const TAB_META: Record<Tab, { eyebrow: string; title: string; description: string }> = {
@@ -50,6 +60,31 @@ const TAB_META: Record<Tab, { eyebrow: string; title: string; description: strin
     eyebrow: 'Ideas worth watching',
     title: 'Keep opportunity within reach.',
     description: 'Save interesting securities and move from research to a portfolio position when ready.',
+  },
+  calculator: {
+    eyebrow: 'Fee analysis',
+    title: 'Maximize your net returns.',
+    description: 'Calculate standard Philippine brokerage fees, clearing taxes, and exact break-even prices.',
+  },
+  pca: {
+    eyebrow: 'Cost averaging',
+    title: 'Build wealth steadily over time.',
+    description: 'Model future savings projections or backtest regular investments with historical PSE market data.',
+  },
+  dividends: {
+    eyebrow: 'Passive returns',
+    title: 'Track your income generation.',
+    description: 'Log stock dividends, track your Yield on Cost, and review monthly passive payouts.',
+  },
+  transactions: {
+    eyebrow: 'Audit log',
+    title: 'Detailed trade bookkeeping.',
+    description: 'Log individual Buy and Sell transactions, review trade history, and monitor realized capital gains.',
+  },
+  compare: {
+    eyebrow: 'Stock analysis',
+    title: 'Compare PSE stocks side-by-side.',
+    description: 'Select two securities to compare their price actions, returns, average trading volume, and volatility side-by-side.',
   },
 };
 
@@ -79,6 +114,14 @@ export default function Home() {
   const handleAddToPortfolio = useCallback((stock: Stock) => { setAddStock(stock); setSelectedStock(null); }, []);
   const handleSearchSelect   = useCallback((stock: Stock) => { handleSelectStockObj(stock); setMobileSearch(false); }, [handleSelectStockObj]);
 
+  const handleTabChange = useCallback((newTab: Tab) => {
+    if ((newTab === 'portfolio' || newTab === 'watchlist') && !user) {
+      setShowAuthModal(true);
+      return;
+    }
+    setTab(newTab);
+  }, [user]);
+
   return (
     <div className="app-shell" style={{ background: 'var(--bg)', minHeight: '100vh', display: 'flex', flexDirection: 'column', transition: 'background 0.3s' }}>
 
@@ -94,7 +137,7 @@ export default function Home() {
               <Image src="/logo.png" alt="" width={48} height={48} priority />
             </span>
             <div className="logo-text">
-              <div className="app-brand-name">PSE Portfolio</div>
+              <div className="app-brand-name">Trackfolio</div>
               <div className="app-brand-subtitle">Philippine Stock Exchange</div>
             </div>
           </Link>
@@ -131,7 +174,7 @@ export default function Home() {
       <nav className="top-tab-nav" style={{ background: 'var(--nav-bg)', backdropFilter: 'blur(12px)', borderBottom: '1px solid var(--border)', position: 'sticky', top: 64, zIndex: 40, overflowX: 'auto', transition: 'background 0.3s' }}>
         <div style={{ maxWidth: 1400, margin: '0 auto', padding: '0 24px', display: 'flex' }}>
           {NAV_TABS.map(t => (
-            <button key={t.key} className={`ntab${tab === t.key ? ' active' : ''}`} onClick={() => setTab(t.key)}>
+            <button key={t.key} className={`ntab${tab === t.key ? ' active' : ''}`} onClick={() => handleTabChange(t.key)}>
               {t.icon}<span>{t.label}</span>
             </button>
           ))}
@@ -169,7 +212,7 @@ export default function Home() {
                   <MarketMovers onSelectStock={s => handleSelectStock(s.symbol, s.name)} />
                 </div>
                 <div className="card panel-card editorial-panel" style={{ padding: '20px 22px', minHeight: 300 }}>
-                  <Watchlist onSelectStock={handleSelectStock} />
+                  <Watchlist onSelectStock={handleSelectStock} onSignInClick={() => setShowAuthModal(true)} />
                 </div>
               </div>
             </div>
@@ -214,7 +257,7 @@ export default function Home() {
                   </span>
                 </div>
               </div>
-              <PortfolioTable onSelectStock={handleSelectStock} onStatsChange={setOverallStats} />
+              <PortfolioTable onSelectStock={handleSelectStock} onStatsChange={setOverallStats} onSignInClick={() => setShowAuthModal(true)} />
             </div>
           )}
 
@@ -226,9 +269,34 @@ export default function Home() {
                 <StocksTable onSelectStock={handleSelectStockObj} onAddToPortfolio={handleAddToPortfolio} />
               </div>
               <div className="card panel-card editorial-panel" style={{ padding: '20px 22px' }}>
-                <Watchlist onSelectStock={handleSelectStock} />
+                <Watchlist onSelectStock={handleSelectStock} onSignInClick={() => setShowAuthModal(true)} />
               </div>
             </div>
+          )}
+
+          {/* ━━━━━━ CALCULATOR ━━━━━━ */}
+          {tab === 'calculator' && (
+            <BrokerFeeCalculator />
+          )}
+
+          {/* ━━━━━━ PCA PLANNER ━━━━━━ */}
+          {tab === 'pca' && (
+            <PCAPlanner />
+          )}
+
+          {/* ━━━━━━ DIVIDEND TRACKER ━━━━━━ */}
+          {tab === 'dividends' && (
+            <DividendTracker onSignInClick={() => setShowAuthModal(true)} />
+          )}
+
+          {/* ━━━━━━ TRANSACTIONS ━━━━━━ */}
+          {tab === 'transactions' && (
+            <TransactionHistory />
+          )}
+
+          {/* ━━━━━━ COMPARE ━━━━━━ */}
+          {tab === 'compare' && (
+            <StockComparer />
           )}
         </div>
       </main>
@@ -243,7 +311,7 @@ export default function Home() {
       {/* ══════════ MOBILE BOTTOM NAV ══════════ */}
       <nav className="bottom-nav">
         {NAV_TABS.map(t => (
-          <button key={t.key} className={`bnav-tab${tab === t.key ? ' active' : ''}`} onClick={() => setTab(t.key)}>
+          <button key={t.key} className={`bnav-tab${tab === t.key ? ' active' : ''}`} onClick={() => handleTabChange(t.key)}>
             {t.icon}
             <span>{t.label}</span>
           </button>

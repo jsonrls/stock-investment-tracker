@@ -33,12 +33,12 @@ export function MarketSummary() {
   const [market, setMarket]   = useState(getMarketStatus());
   const [now, setNow]         = useState(new Date());
 
-  // Tick clock every 30s
+  // Tick clock every second
   useEffect(() => {
     const t = setInterval(() => {
       setNow(new Date());
       setMarket(getMarketStatus());
-    }, 30_000);
+    }, 1000);
     return () => clearInterval(t);
   }, []);
 
@@ -65,7 +65,7 @@ export function MarketSummary() {
   useEffect(() => { fetch(); }, [fetch]);
 
   const phTime = now.toLocaleTimeString('en-PH', {
-    timeZone: 'Asia/Manila', hour: '2-digit', minute: '2-digit',
+    timeZone: 'Asia/Manila', hour: '2-digit', minute: '2-digit', second: '2-digit',
   });
   const phDate = now.toLocaleDateString('en-PH', {
     timeZone: 'Asia/Manila', weekday: 'short', month: 'short', day: 'numeric',
