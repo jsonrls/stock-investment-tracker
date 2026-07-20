@@ -344,21 +344,28 @@ export default function Home() {
               background: 'var(--surface)', 
               borderTop: '1px solid var(--border)', 
               borderRadius: '24px 24px 0 0', 
-              padding: '24px 20px 40px',
+              padding: '16px 20px 40px',
               display: 'flex',
               flexDirection: 'column',
               gap: 16
             }}
             onClick={e => e.stopPropagation()}
           >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border)', paddingBottom: 12 }}>
+            {/* Bottom Sheet Drag Handle */}
+            <div 
+              onClick={() => setShowMoreMenu(false)}
+              style={{ 
+                width: 36, 
+                height: 4, 
+                background: 'var(--border)', 
+                borderRadius: 2, 
+                margin: '0 auto 4px', 
+                cursor: 'pointer' 
+              }} 
+            />
+
+            <div style={{ textAlign: 'center', borderBottom: '1px solid var(--border)', paddingBottom: 12 }}>
               <span style={{ fontSize: 13, fontWeight: 800, color: 'var(--tp)' }}>All Utilities & Tools</span>
-              <button 
-                onClick={() => setShowMoreMenu(false)}
-                style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--tm)', fontSize: 12, fontWeight: 700 }}
-              >
-                Close
-              </button>
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
