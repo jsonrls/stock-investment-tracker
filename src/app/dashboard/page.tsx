@@ -23,7 +23,7 @@ import { TransactionHistory } from '@/components/TransactionHistory';
 import { StockComparer } from '@/components/StockComparer';
 import {
   LayoutDashboard, BarChart2, Star, TrendingUp,
-  ChevronRight, Search, X, LogIn, Share2, Calculator, Coins, Landmark, ArrowRightLeft, ArrowLeftRight,
+  ChevronRight, Search, X, LogIn, Share2, Calculator, Coins, Landmark, ArrowRightLeft, ArrowLeftRight, Menu,
 } from 'lucide-react';
 
 type Tab = 'dashboard' | 'market' | 'portfolio' | 'watchlist' | 'calculator' | 'pca' | 'dividends' | 'transactions' | 'compare';
@@ -39,6 +39,13 @@ const NAV_TABS: { key: Tab; label: string; icon: React.ReactNode }[] = [
   { key: 'transactions', label: 'Ledger',       icon: <ArrowRightLeft size={18} /> },
   { key: 'compare',    label: 'Compare',        icon: <ArrowLeftRight size={18} /> },
 ];
+
+const MOBILE_TABS = [
+  { key: 'dashboard', label: 'Home', icon: <LayoutDashboard size={18} /> },
+  { key: 'market',    label: 'Market', icon: <TrendingUp size={18} /> },
+  { key: 'portfolio', label: 'Portfolio', icon: <BarChart2 size={18} /> },
+  { key: 'watchlist', label: 'Watchlist', icon: <Star size={18} /> },
+] as const;
 
 const TAB_META: Record<Tab, { eyebrow: string; title: string; description: string }> = {
   dashboard: {
@@ -108,6 +115,7 @@ export default function Home() {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [overallStats, setOverallStats] = useState<OverallStats | null>(null);
   const [showOverallShare, setShowOverallShare] = useState(false);
+  const [showMoreMenu, setShowMoreMenu] = useState(false);
 
   const handleSelectStock    = useCallback((symbol: string, name: string) => setSelectedStock({ symbol, name }), []);
   const handleSelectStockObj = useCallback((stock: Stock) => setSelectedStock({ symbol: stock.symbol, name: stock.name }), []);
@@ -310,13 +318,128 @@ export default function Home() {
 
       {/* ══════════ MOBILE BOTTOM NAV ══════════ */}
       <nav className="bottom-nav">
-        {NAV_TABS.map(t => (
+        {MOBILE_TABS.map(t => (
           <button key={t.key} className={`bnav-tab${tab === t.key ? ' active' : ''}`} onClick={() => handleTabChange(t.key)}>
             {t.icon}
             <span>{t.label}</span>
           </button>
         ))}
+        <button className="bnav-tab" onClick={() => setShowMoreMenu(true)}>
+          <Menu size={18} />
+          <span>More</span>
+        </button>
       </nav>
+
+      {/* ══════════ MOBILE MORE MENU OVERLAY ══════════ */}
+      {showMoreMenu && (
+        <div 
+          className="mobile-search-overlay" 
+          onClick={() => setShowMoreMenu(false)} 
+          style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'center', padding: 0 }}
+        >
+          <div 
+            className="slide-in"
+            style={{ 
+              width: '100%', 
+              background: 'var(--surface1)', 
+              borderTop: '1px solid var(--border)', 
+              borderRadius: '24px 24px 0 0', 
+              padding: '24px 20px 40px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 16
+            }}
+            onClick={e => e.stopPropagation()}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border)', paddingBottom: 12 }}>
+              <span style={{ fontSize: 13, fontWeight: 800, color: 'var(--tp)' }}>All Utilities & Tools</span>
+              <button 
+                onClick={() => setShowMoreMenu(false)}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--tm)', fontSize: 12, fontWeight: 700 }}
+              >
+                Close
+              </button>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              {/* Fee Calculator */}
+              <button 
+                onClick={() => { handleTabChange('calculator'); setShowMoreMenu(false); }}
+                style={{ 
+                  background: 'var(--surface2)', border: '1px solid var(--border)', borderRadius: 12, padding: 14, 
+                  textAlign: 'left', display: 'flex', flexDirection: 'column', gap: 6, cursor: 'pointer' 
+                }}
+              >
+                <Calculator size={18} style={{ color: 'var(--accent)' }} />
+                <div>
+                  <div style={{ fontSize: 11, fontWeight: 750, color: 'var(--tp)' }}>Fee Calculator</div>
+                  <div style={{ fontSize: 9, color: 'var(--tm)', marginTop: 2 }}>Break-even & trading commissions</div>
+                </div>
+              </button>
+
+              {/* PCA Planner */}
+              <button 
+                onClick={() => { handleTabChange('pca'); setShowMoreMenu(false); }}
+                style={{ 
+                  background: 'var(--surface2)', border: '1px solid var(--border)', borderRadius: 12, padding: 14, 
+                  textAlign: 'left', display: 'flex', flexDirection: 'column', gap: 6, cursor: 'pointer' 
+                }}
+              >
+                <Coins size={18} style={{ color: 'var(--green)' }} />
+                <div>
+                  <div style={{ fontSize: 11, fontWeight: 750, color: 'var(--tp)' }}>PCA Planner</div>
+                  <div style={{ fontSize: 9, color: 'var(--tm)', marginTop: 2 }}>DCA simulations & backtests</div>
+                </div>
+              </button>
+
+              {/* Dividends */}
+              <button 
+                onClick={() => { handleTabChange('dividends'); setShowMoreMenu(false); }}
+                style={{ 
+                  background: 'var(--surface2)', border: '1px solid var(--border)', borderRadius: 12, padding: 14, 
+                  textAlign: 'left', display: 'flex', flexDirection: 'column', gap: 6, cursor: 'pointer' 
+                }}
+              >
+                <Landmark size={18} style={{ color: 'var(--gold)' }} />
+                <div>
+                  <div style={{ fontSize: 11, fontWeight: 750, color: 'var(--tp)' }}>Dividends</div>
+                  <div style={{ fontSize: 9, color: 'var(--tm)', marginTop: 2 }}>Yields & payout history ledger</div>
+                </div>
+              </button>
+
+              {/* Ledger */}
+              <button 
+                onClick={() => { handleTabChange('transactions'); setShowMoreMenu(false); }}
+                style={{ 
+                  background: 'var(--surface2)', border: '1px solid var(--border)', borderRadius: 12, padding: 14, 
+                  textAlign: 'left', display: 'flex', flexDirection: 'column', gap: 6, cursor: 'pointer' 
+                }}
+              >
+                <ArrowRightLeft size={18} style={{ color: '#ff7675' }} />
+                <div>
+                  <div style={{ fontSize: 11, fontWeight: 750, color: 'var(--tp)' }}>Trade Ledger</div>
+                  <div style={{ fontSize: 9, color: 'var(--tm)', marginTop: 2 }}>Log Buy/Sell trades & capital gains</div>
+                </div>
+              </button>
+
+              {/* Compare */}
+              <button 
+                onClick={() => { handleTabChange('compare'); setShowMoreMenu(false); }}
+                style={{ 
+                  background: 'var(--surface2)', border: '1px solid var(--border)', borderRadius: 12, padding: 14, 
+                  textAlign: 'left', display: 'flex', flexDirection: 'column', gap: 6, cursor: 'pointer', gridColumn: 'span 2' 
+                }}
+              >
+                <ArrowLeftRight size={18} style={{ color: '#3b82f6' }} />
+                <div>
+                  <div style={{ fontSize: 11, fontWeight: 750, color: 'var(--tp)' }}>Compare Stocks</div>
+                  <div style={{ fontSize: 9, color: 'var(--tm)', marginTop: 2 }}>Compare returns, volatility, & normalized charts side-by-side</div>
+                </div>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ══════════ MOBILE SEARCH OVERLAY ══════════ */}
       {mobileSearch && (
