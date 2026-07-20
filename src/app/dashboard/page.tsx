@@ -341,7 +341,7 @@ export default function Home() {
             className="slide-in"
             style={{ 
               width: '100%', 
-              background: 'var(--surface1)', 
+              background: 'var(--surface)', 
               borderTop: '1px solid var(--border)', 
               borderRadius: '24px 24px 0 0', 
               padding: '24px 20px 40px',
