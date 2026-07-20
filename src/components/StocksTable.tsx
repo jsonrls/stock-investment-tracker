@@ -83,7 +83,16 @@ export function StocksTable({ onSelectStock, onAddToPortfolio }: StocksTableProp
                       </span>
                     </div>
                   </td>
-                  <td style={{ color: 'var(--ts)', fontSize: 12 }}>{s.name.length > 28 ? s.name.slice(0, 28) + '…' : s.name}</td>
+                  <td style={{ 
+                    color: 'var(--ts)', 
+                    fontSize: 12,
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    maxWidth: 150
+                  }} title={s.name}>
+                    {s.name}
+                  </td>
                   <td className="right">
                     <PriceDisplay price={s.price} style={{ fontWeight: 700, color: 'var(--tp)' }} />
                   </td>
